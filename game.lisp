@@ -1,3 +1,5 @@
+(defparameter *objects* '(whiskey bucket frog chain))
+
 (defparameter *nodes* '((living-room (you are in the living room.
                                          a wizard is snoring loudly on the couch.))
                        (garden (you are in a beautiful garden.
@@ -20,7 +22,7 @@
   (apply #'append (mapcar #'describe-path (cdr (assoc loc edges))))
   )
 
-(defparameter *objects-locations* '((whiskey living-room)
+(defparameter *object-locations* '((whiskey living-room)
 									(bucket living-room)
 									(chain garden)
 									(frog garden)))
@@ -34,4 +36,18 @@
 		   `(you see a ,obj on the floor.)))
   (apply #'append (mapcar #'describe-obj (objects-at loc objs obj-loc)))))
 
-(describe-objects 'living-room *objects* *object-locations*)
+(defparameter *location* 'living-room)
+
+(defun look()
+ (append (describe-location *location* *nodes*)
+  (describe-paths *location* *edges*)
+  (describe-objects *location* *objects* *object-locations*)))
+
+(defun walk(direction)
+ (let ((next (find direction
+			  (cdr (assoc *location* *edges*))
+			  :key #'cadr)))
+  (if next
+   (progn (setf *location* (car next))
+	(look))
+   '(you cannot go that way.))))
